@@ -6,32 +6,43 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource(value = {"classpath:/jdbc.properties"})
-@ConfigurationProperties(prefix = "dbconfig.")
+@PropertySource(value = {"classpath:jdbc.properties"})
 public class DBConfig {
 
+    @Value("${dbconfig.url}")
     private String url;
 
+    @Value("${dbconfig.driverClass}")
     private String driverClass;
 
+    @Value("${dbconfig.user}")
     private String user;
 
+    @Value("${dbconfig.password}")
     private String password;
 
+    @Value("${dbconfig.initialPoolSize}")
     private int initialPoolSize;
 
+    @Value("${dbconfig.minPoolSize}")
     private int minPoolSize;
 
+    @Value("${dbconfig.maxPoolSize}")
     private int maxPoolSize;
 
+    @Value("${dbconfig.acquireIncrement}")
     private int acquireIncrement;
 
+    @Value("${dbconfig.maxIdleTime}")
     private int maxIdleTime;
 
+    @Value("${dbconfig.preferredTestQuery}")
     private String preferredTestQuery;
 
+    @Value("${dbconfig.idleConnectionTestPeriod}")
     private int idleConnectionTestPeriod;
 
+    @Value("${dbconfig.testConnectionOnCheckout}")
     private boolean testConnectionOnCheckout;
 
     public String getUrl() {
