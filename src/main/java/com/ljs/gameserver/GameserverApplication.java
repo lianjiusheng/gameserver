@@ -3,11 +3,13 @@ package com.ljs.gameserver;
 import com.ljs.gameserver.config.DBConfig;
 import com.ljs.gameserver.entry.PlayerEntry;
 import com.ljs.gameserver.mapper.PlayerEntryMapper;
+import com.ljs.gameserver.repository.PlayerEntryRepository;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
@@ -16,6 +18,7 @@ import java.beans.PropertyVetoException;
 
 @SpringBootApplication
 @MapperScan(basePackages = {"com.ljs.gameserver.mapper"})//mybatis style 3 ,基于java的配置
+@EnableCaching //启用缓存
 public class GameserverApplication{
 
 	@Autowired
@@ -43,9 +46,18 @@ public class GameserverApplication{
 	ApplicationContext context= SpringApplication.run(GameserverApplication.class, args);
 
 
-		PlayerEntryMapper playerRepository=context.getBean(PlayerEntryMapper.class);
+		PlayerEntryRepository playerRepository=context.getBean(PlayerEntryRepository.class);
 
-		PlayerEntry entry=playerRepository.selectByPrimaryKey("1");
-		System.out.println("====================="+entry);
+		while (true) {
+
+			PlayerEntry entry = playerRepository.findById("1");
+			System.out.println("=====================" + entry);
+
+			try {
+				Thread.sleep(2000L);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
