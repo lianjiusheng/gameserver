@@ -23,7 +23,7 @@
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
 
-        <sqlMapGenerator targetPackage="com.ljs.gameserver.mapper" targetProject="src/main/java">
+        <sqlMapGenerator targetPackage="com.ljs.gameserver.mapper" targetProject="src/main/resources">
             <property name="enableSubPackages" value="false"/>
         </sqlMapGenerator>
 
@@ -33,5 +33,15 @@
 
         <table schema="" tableName="players" domainObjectName="PlayerEntry" enableCountByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" enableUpdateByExample="false" />
+
+        <table schema="" tableName="player_commanders" domainObjectName="PlayerCommanderEntry" enableCountByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" enableUpdateByExample="false" >
+           <!--
+            <ignoreColumn column="skill_info" />
+            <ignoreColumn column="talent_info" />
+            <ignoreColumn column="marching_info" />
+            -->
+        </table>
     </context>
+
 </generatorConfiguration>

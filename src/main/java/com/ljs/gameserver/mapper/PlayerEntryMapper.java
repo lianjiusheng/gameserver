@@ -2,10 +2,8 @@ package com.ljs.gameserver.mapper;
 
 import com.ljs.gameserver.entry.PlayerEntry;
 import org.apache.ibatis.annotations.Mapper;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
 
 @Mapper
 public interface PlayerEntryMapper {
