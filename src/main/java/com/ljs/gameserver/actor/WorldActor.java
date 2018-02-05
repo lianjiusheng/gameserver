@@ -1,13 +1,12 @@
 package com.ljs.gameserver.actor;
 
-import akka.actor.AbstractActor;
-import akka.actor.Actor;
-import akka.actor.ActorRef;
-import akka.actor.Props;
+import akka.actor.*;
 import akka.dispatch.Futures;
 import akka.pattern.Patterns;
 import com.ljs.gameserver.entry.PlayerEntry;
+import com.ljs.gameserver.message.PlayerActorProtocol;
 import com.ljs.gameserver.message.WorldActorMessage;
+import com.ljs.gameserver.message.repository.PlayerEntryRepositoryProtocol;
 import com.ljs.gameserver.repository.PlayerEntryRepository;
 import com.ljs.gameserver.util.JSONUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,68 +24,63 @@ import java.util.concurrent.Callable;
 @Scope("prototype")
 public class WorldActor extends AbstractActor {
 
-    private PlayerEntryRepository playerEntryRepository;
 
+    private ActorSystem actorSystem;
     //登录玩家
     private Map<String, ActorRef> onlinePlayers = new HashMap<>();
     //等待登录的玩家
     private Set<String> waiterSet = new HashSet<>();
 
-    public WorldActor(@Autowired PlayerEntryRepository playerEntryRepository) {
-        this.playerEntryRepository = playerEntryRepository;
+
+    public WorldActor(@Autowired  ActorSystem actorSystem){
+        this.actorSystem=actorSystem;
     }
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(WorldActorMessage.RequestLogin.class, this::login).match(PlayerEntry.class, this::load).build();
+        return receiveBuilder().match(WorldActorMessage.RequestLogin.class, this::login).match(PlayerEntryRepositoryProtocol.FindByIdResult.class, this::load).build();
     }
 
     private void login(WorldActorMessage.RequestLogin msg) {
 
+        System.out.println("player:"+msg.getPlayerId()+" request login.");
 
         if (onlinePlayers.containsKey(msg.getPlayerId())) {
-
-            getSender().tell(new WorldActorMessage.PlayerLoginFail(1), getSelf());
+            System.out.println("player:"+msg.getPlayerId()+" already login.");
+            //getSender().tell(new WorldActorMessage.PlayerLoginFail(1), getSelf());
             return;
         }
 
-
         if (waiterSet.contains(msg.getPlayerId())) {
-            getSender().tell(new WorldActorMessage.PlayerLoginFail(2), getSelf());
+            System.out.println("player:"+msg.getPlayerId()+" is logging");
+            //getSender().tell(new WorldActorMessage.PlayerLoginFail(2), getSelf());
             return;
         }
 
         waiterSet.add(msg.getPlayerId());
 
-        Future<PlayerEntry> future = Futures.future(new Callable<PlayerEntry>() {
 
-            @Override
-            public PlayerEntry call() throws Exception {
+        //actorSystem.child("/user/PlayerEntryRepository");
 
-                PlayerEntry playerEntry = playerEntryRepository.findById(msg.getPlayerId());
-
-                return playerEntry;
-            }
-        }, getContext().dispatcher());
-
-        Patterns.pipe(future, getContext().dispatcher()).to(getSelf());
-
-
+        ActorSelection selection=  actorSystem.actorSelection("akka://actorSystem/user/PlayerEntryRepository");
+        selection.tell(new PlayerEntryRepositoryProtocol.FindById(getSelf(),msg.getPlayerId()),getSelf());
     }
 
 
-    private void load(PlayerEntry msg) {
+    private void load(PlayerEntryRepositoryProtocol.FindByIdResult result) {
 
 
-        System.out.println("login success :" + msg.getId());
-
-        Props props = PlayerActor.props(msg);
-
-        ActorRef playerActorRef = getContext().actorOf(props, "player@" + msg.getId());
-
-        onlinePlayers.put(msg.getId(), playerActorRef);
-        getSender().tell(new WorldActorMessage.PlayerLoginSucess(msg), getSelf());
+        ActorRef playerRef=result.getResultRef();
+        if(playerRef==null){
+            System.out.println("login fail :" + result.getId());
+            waiterSet.remove(result.getId());
+            return ;
+        }else{
+            System.out.println("login success :" + result.getId());
+            onlinePlayers.put(result.getId(), playerRef);
+            waiterSet.remove(result.getId());
+            playerRef.tell(new PlayerActorProtocol.PlayerLoaded(),getSelf());
+        }
     }
-
 
 }

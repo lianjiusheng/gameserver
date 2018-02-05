@@ -3,6 +3,7 @@ package com.ljs.gameserver.actor;
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import com.ljs.gameserver.entry.PlayerEntry;
+import com.ljs.gameserver.message.PlayerActorProtocol;
 
 public class PlayerActor  extends AbstractActor{
 
@@ -11,6 +12,7 @@ public class PlayerActor  extends AbstractActor{
     public PlayerActor(PlayerEntry playerEntry){
 
         this.playerEntry=playerEntry;
+
     }
 
     public static Props props(PlayerEntry playerEntry) {
@@ -19,9 +21,14 @@ public class PlayerActor  extends AbstractActor{
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().build();
+        return receiveBuilder().match(PlayerActorProtocol.PlayerLoaded.class,this::handlePlayerLoaded).build();
     }
 
 
+
+    private void handlePlayerLoaded(PlayerActorProtocol.PlayerLoaded protocol){
+
+
+    }
 
 }

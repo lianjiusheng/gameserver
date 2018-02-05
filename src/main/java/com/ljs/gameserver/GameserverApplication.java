@@ -53,9 +53,12 @@ public class GameserverApplication {
 
     @Bean
     public ActorSystem actorSystem() {
-        ActorSystem system = ActorSystem.create("AkkaJavaSpring");
+        ActorSystem system = ActorSystem.create("actorSystem");
         // initialize the application context in the Akka Spring Extension
         SpringExtension.getInstance().get(system).initialize(applicationContext);
+
+
+
         return system;
     }
 
@@ -67,11 +70,13 @@ public class GameserverApplication {
         ActorRef wordActor = system.actorOf(
                 SpringExtension.getInstance().get(system).props("WorldActor"), "WorldActor");
 
+        ActorRef playerEntryRepository = system.actorOf(
+                SpringExtension.getInstance().get(system).props("PlayerEntryRepository"), "PlayerEntryRepository");
+
+
         while (true) {
 
-            Timeout timeout = new Timeout(Duration.create(5, "seconds"));
-            Future<Object> future = Patterns.ask(wordActor, new WorldActorMessage.RequestLogin("1", "sign"), timeout);
-
+            wordActor.tell(new WorldActorMessage.RequestLogin("1", "sign"),ActorRef.noSender());
 
             Thread.sleep(1000L);
 
