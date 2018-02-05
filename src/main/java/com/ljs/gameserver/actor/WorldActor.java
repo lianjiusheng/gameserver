@@ -1,24 +1,20 @@
 package com.ljs.gameserver.actor;
 
-import akka.actor.*;
-import akka.dispatch.Futures;
-import akka.pattern.Patterns;
-import com.ljs.gameserver.entry.PlayerEntry;
+import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
+import akka.actor.ActorSystem;
 import com.ljs.gameserver.message.PlayerActorProtocol;
 import com.ljs.gameserver.message.WorldActorMessage;
 import com.ljs.gameserver.message.repository.PlayerEntryRepositoryProtocol;
-import com.ljs.gameserver.repository.PlayerEntryRepository;
-import com.ljs.gameserver.util.JSONUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import scala.concurrent.Future;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
 @Component("WorldActor")
 @Scope("prototype")

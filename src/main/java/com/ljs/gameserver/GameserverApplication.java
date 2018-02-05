@@ -2,12 +2,8 @@ package com.ljs.gameserver;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.pattern.Patterns;
-import akka.pattern.PatternsCS;
-import akka.util.Timeout;
 import com.ljs.gameserver.config.DBConfig;
 import com.ljs.gameserver.message.WorldActorMessage;
-import com.ljs.gameserver.util.JSONUtil;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -15,8 +11,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
