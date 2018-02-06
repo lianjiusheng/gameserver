@@ -34,7 +34,10 @@ public class WorldActor extends AbstractActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(WorldActorMessage.RequestLogin.class, this::login).match(PlayerEntryRepositoryProtocol.FindByIdResult.class, this::load).build();
+        return receiveBuilder()
+                .match(WorldActorMessage.RequestLogin.class, this::login)
+                .match(PlayerEntryRepositoryProtocol.FindByIdResult.class, this::load)
+                .build();
     }
 
     private void login(WorldActorMessage.RequestLogin msg) {
