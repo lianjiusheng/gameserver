@@ -1,6 +1,6 @@
-package com.ljs.gameserver.codec;
+package com.ljs.gameserver.core.codec;
 
-import com.ljs.gameserver.packet.Response;
+import com.ljs.gameserver.core.packet.Response;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;

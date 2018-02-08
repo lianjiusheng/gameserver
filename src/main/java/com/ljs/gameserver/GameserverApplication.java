@@ -1,12 +1,10 @@
 package com.ljs.gameserver;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import com.ljs.gameserver.config.DBConfig;
-import com.ljs.gameserver.message.WorldActorMessage;
+import com.ljs.gameserver.springakka.SpringExtension;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
@@ -57,23 +55,18 @@ public class GameserverApplication {
     }
 
     public static void main(String[] args) throws Exception {
-        ApplicationContext context = SpringApplication.run(GameserverApplication.class, args);
+//        ApplicationContext context = SpringApplication.run(GameserverApplication.class, args);
+//
+//        ActorSystem system = context.getBean(ActorSystem.class);
+//
+//        ActorRef wordActor = system.actorOf(
+//                SpringExtension.getInstance().get(system).props("WorldActor"), "WorldActor");
+//
+//        ActorRef playerEntryRepository = system.actorOf(
+//                SpringExtension.getInstance().get(system).props("PlayerEntryRepository"), "PlayerEntryRepository");
 
-        ActorSystem system = context.getBean(ActorSystem.class);
-
-        ActorRef wordActor = system.actorOf(
-                SpringExtension.getInstance().get(system).props("WorldActor"), "WorldActor");
-
-        ActorRef playerEntryRepository = system.actorOf(
-                SpringExtension.getInstance().get(system).props("PlayerEntryRepository"), "PlayerEntryRepository");
 
 
-        while (true) {
 
-            wordActor.tell(new WorldActorMessage.RequestLogin("1", "sign"),ActorRef.noSender());
-
-            Thread.sleep(1000L);
-
-        }
     }
 }

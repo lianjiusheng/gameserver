@@ -2,10 +2,13 @@ package com.ljs.gameserver.repository;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.Props;
 import akka.dispatch.Futures;
 import akka.pattern.Patterns;
-import com.ljs.gameserver.SpringExtension;
+import com.ljs.gameserver.springakka.SpringExtension;
+import com.ljs.gameserver.actor.PlayerActor;
 import com.ljs.gameserver.entry.PlayerEntry;
+import com.ljs.gameserver.entry.PlayerEntrySimpleInfo;
 import com.ljs.gameserver.mapper.PlayerEntryMapper;
 import com.ljs.gameserver.message.repository.PlayerEntryRepositoryProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Component;
 import scala.concurrent.ExecutionContextExecutor;
 import scala.concurrent.Future;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
@@ -35,8 +39,24 @@ public class PlayerEntryRepository extends AbstractActor {
                 .match(PlayerEntryRepositoryProtocol.PlayerEntryLoaded.class, this::handlePlayerEentryLoaded)
                 .match(PlayerEntryRepositoryProtocol.PlayerEntryCreate.class,this::handlePlayerEntryCreate)
                 .match(PlayerEntryRepositoryProtocol.PlayerEntrySaveResult.class,this::handlePlayerEentrySave)
+                .match(PlayerEntryRepositoryProtocol.FindAccountPlayerList.class,this::findAccountPlayerList)
                 .build();
     }
+
+    private  void findAccountPlayerList(PlayerEntryRepositoryProtocol.FindAccountPlayerList protocol) {
+
+        ExecutionContextExecutor exe = context().system().dispatchers().lookup("blocking-io-dispatcher");
+
+        Future<PlayerEntryRepositoryProtocol.AccountPlayerList>  future=  Futures.future(new Callable<List<PlayerEntrySimpleInfo>>()
+        {
+            public List<PlayerEntrySimpleInfo> call() throws InterruptedException {
+                return playerEntryMapper.selectAcountPlayerList(protocol.getAccountId());
+            }
+        },exe).map(e->new PlayerEntryRepositoryProtocol.AccountPlayerList(protocol.getChannelId(),e) ,exe);
+
+        Patterns.pipe(future,getContext().dispatcher()).to(getSender(),getSelf());
+     }
+
 
     private  void handlePlayerEentrySave(PlayerEntryRepositoryProtocol.PlayerEntrySaveResult protocol) {
         PlayerEntryRepositoryProtocol.PlayerEntryCreated resultMsg=null;
@@ -66,15 +86,12 @@ public class PlayerEntryRepository extends AbstractActor {
         Patterns.pipe(future,getContext().dispatcher()).to(getSelf());
     }
 
-
-
-
     private void findById(PlayerEntryRepositoryProtocol.FindById protocol) {
 
         Optional<ActorRef> actorRefOptional = getContext().findChild(getPlayerActorName(protocol.getId()));
         if (actorRefOptional.isPresent()) {
             PlayerEntryRepositoryProtocol.FindByIdResult rs = new PlayerEntryRepositoryProtocol.FindByIdResult(protocol.getId(),actorRefOptional.get());
-            protocol.getHandler().tell(rs, getSelf());
+            getSender().tell(rs, getSelf());
             return;
         }
 
@@ -86,13 +103,10 @@ public class PlayerEntryRepository extends AbstractActor {
             {
                 return playerEntryMapper.selectByPrimaryKey(protocol.getId());
             }
-        }, exe).map(e->new PlayerEntryRepositoryProtocol.PlayerEntryLoaded(protocol.getId(),protocol.getHandler(),e),exe);
+        }, exe).map(e->new PlayerEntryRepositoryProtocol.PlayerEntryLoaded(protocol.getId(),e),exe);
 
-        Patterns.pipe(future,getContext().dispatcher()).to(getSelf());
+        Patterns.pipe(future,getContext().dispatcher()).to(getSelf(),getSender());
 
-//        PlayerEntry playerEntry=playerEntryMapper.selectByPrimaryKey(protocol.getId());
-//        PlayerEntryRepositoryProtocol.PlayerEntryLoaded rs = new PlayerEntryRepositoryProtocol.PlayerEntryLoaded(protocol.getId(),protocol.getHandler(),playerEntry);
-//        getSelf().tell(rs, getSelf());
     }
 
 
@@ -101,16 +115,16 @@ public class PlayerEntryRepository extends AbstractActor {
         PlayerEntry entry = protocol.getEntry();
         if (entry == null) {
             PlayerEntryRepositoryProtocol.FindByIdResult rs = new PlayerEntryRepositoryProtocol.FindByIdResult(protocol.getId(),null);
-            protocol.getReplyTo().tell(rs, getSelf());
+            getSender().tell(rs, getSelf());
             return;
         }
-        ActorRef ref = getContext().actorOf(SpringExtension.getInstance().get(getContext().getSystem()).props("default"), getPlayerActorName(entry.getId()));
+        ActorRef ref = getContext().actorOf(Props.create(PlayerActor.class,entry), getPlayerActorName(entry.getId()));
         PlayerEntryRepositoryProtocol.FindByIdResult rs = new PlayerEntryRepositoryProtocol.FindByIdResult(protocol.getId(),ref);
-        protocol.getReplyTo().tell(rs, getSelf());
+        getSender().tell(rs, getSelf());
     }
 
 
-    private String getPlayerActorName(String id) {
+    public static String getPlayerActorName(String id) {
         return "player@" + id;
     }
 

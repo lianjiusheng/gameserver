@@ -1,4 +1,4 @@
-package com.ljs.gameserver;
+package com.ljs.gameserver.springakka;
 
 import akka.actor.AbstractExtensionId;
 import akka.actor.ExtendedActorSystem;

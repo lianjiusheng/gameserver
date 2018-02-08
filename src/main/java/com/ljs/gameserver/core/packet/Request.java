@@ -1,4 +1,4 @@
-package com.ljs.gameserver.packet;
+package com.ljs.gameserver.core.packet;
 
 public class Request
 {

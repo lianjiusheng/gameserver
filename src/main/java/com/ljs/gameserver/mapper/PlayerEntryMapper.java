@@ -1,6 +1,7 @@
 package com.ljs.gameserver.mapper;
 
 import com.ljs.gameserver.entry.PlayerEntry;
+import com.ljs.gameserver.entry.PlayerEntrySimpleInfo;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -46,4 +47,6 @@ public interface PlayerEntryMapper {
      * @mbg.generated
      */
     int updateByPrimaryKey(PlayerEntry record);
+
+    List<PlayerEntrySimpleInfo> selectAcountPlayerList(String accountId);
 }

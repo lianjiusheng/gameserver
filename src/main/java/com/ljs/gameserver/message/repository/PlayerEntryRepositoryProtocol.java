@@ -3,6 +3,10 @@ package com.ljs.gameserver.message.repository;
 import akka.actor.Actor;
 import akka.actor.ActorRef;
 import com.ljs.gameserver.entry.PlayerEntry;
+import com.ljs.gameserver.entry.PlayerEntrySimpleInfo;
+import com.ljs.gameserver.message.AbstractMessage;
+
+import java.util.List;
 
 public class PlayerEntryRepositoryProtocol {
 
@@ -10,43 +14,33 @@ public class PlayerEntryRepositoryProtocol {
      * 根据ID查找玩家，查找结果通过
      * {@link FindByIdResult} 消息返回
      */
-    public static class FindById{
+    public static class FindById extends AbstractMessage{
         private String id;
-        private ActorRef handler;
-
         /**
-         * @param handler 接收消息的ActorRef
          * @param id 要查找的ID
          */
-        public FindById(ActorRef handler,String id) {
-            this. handler=handler;
+        public FindById(String id) {
+
             this.id = id;
         }
         public String getId() {
             return id;
-        }
-        public ActorRef getHandler() {
-            return handler;
         }
     }
 
     /**
      * 玩家被加载消息，客户端不应该使用该消息
      */
-    public static class PlayerEntryLoaded{
+    public static class PlayerEntryLoaded extends AbstractMessage{
         private String id;
-        private ActorRef replyTo;
         private PlayerEntry entry;
-        public PlayerEntryLoaded(String id,ActorRef replyTo,PlayerEntry entry) {
+        public PlayerEntryLoaded(String id,PlayerEntry entry) {
             this.id=id;
-            this.replyTo=replyTo;
+
             this.entry = entry;
         }
         public PlayerEntry getEntry() {
             return entry;
-        }
-        public ActorRef getReplyTo() {
-            return replyTo;
         }
 
         public String getId() {
@@ -57,10 +51,10 @@ public class PlayerEntryRepositoryProtocol {
     /**
      * 按ID查找玩家结果
      */
-    public static class FindByIdResult{
+    public static class FindByIdResult extends AbstractMessage{
         private String id;
         private ActorRef resultRef;
-        public FindByIdResult( String id,ActorRef resultRef) {
+        public FindByIdResult(String id,ActorRef resultRef) {
             this.id=id;
             this.resultRef = resultRef;
         }
@@ -86,7 +80,7 @@ public class PlayerEntryRepositoryProtocol {
     /**
      * 请求创建玩家，创建结果通过{@link PlayerEntryCreated}消息返回
      */
-    public static class PlayerEntryCreate{
+    public static class PlayerEntryCreate extends AbstractMessage{
         private ActorRef handler;
         private PlayerEntry entry;
 
@@ -106,7 +100,7 @@ public class PlayerEntryRepositoryProtocol {
     /**
      * 创建玩家结果消息
      */
-    public static class PlayerEntryCreated{
+    public static class PlayerEntryCreated extends AbstractMessage{
         private String id;
         private ActorRef resultRef;
 
@@ -122,7 +116,7 @@ public class PlayerEntryRepositoryProtocol {
         }
     }
 
-    public static  class  PlayerEntrySaveResult{
+    public static  class  PlayerEntrySaveResult extends AbstractMessage{
 
         private int rs;
         private PlayerEntry entry;
@@ -144,6 +138,35 @@ public class PlayerEntryRepositoryProtocol {
 
         public ActorRef getReplyTo() {
             return replyTo;
+        }
+    }
+
+    public static class FindAccountPlayerList extends AbstractMessage{
+
+        private String accountId;
+
+        public FindAccountPlayerList(String channelId, String accountId) {
+            super.setChannelId(channelId);
+            this.accountId = accountId;
+        }
+
+        public String getAccountId() {
+            return accountId;
+        }
+
+    }
+
+    public static  class AccountPlayerList extends AbstractMessage{
+
+        private List<PlayerEntrySimpleInfo> simpleInfoList;
+
+        public AccountPlayerList(String channelId,List<PlayerEntrySimpleInfo> simpleInfoList) {
+            super.setChannelId(channelId);
+            this.simpleInfoList = simpleInfoList;
+        }
+
+        public List<PlayerEntrySimpleInfo> getSimpleInfoList() {
+            return simpleInfoList;
         }
     }
 

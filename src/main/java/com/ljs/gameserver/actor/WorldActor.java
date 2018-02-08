@@ -1,20 +1,21 @@
 package com.ljs.gameserver.actor;
 
 import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
+import com.ljs.gameserver.entry.PlayerEntrySimpleInfo;
+import com.ljs.gameserver.message.AuthenticationServiceProtocol;
 import com.ljs.gameserver.message.PlayerActorProtocol;
-import com.ljs.gameserver.message.WorldActorMessage;
+import com.ljs.gameserver.message.network.requests.ReqEnterWorld;
+import com.ljs.gameserver.message.network.requests.ReqLogin;
+import com.ljs.gameserver.message.network.responses.RespPlayerList;
 import com.ljs.gameserver.message.repository.PlayerEntryRepositoryProtocol;
+import com.ljs.gameserver.SessionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component("WorldActor")
 @Scope("prototype")
@@ -22,64 +23,60 @@ public class WorldActor extends AbstractActor {
 
 
     private ActorSystem actorSystem;
-    //登录玩家
-    private Map<String, ActorRef> onlinePlayers = new HashMap<>();
-    //等待登录的玩家
-    private Set<String> waiterSet = new HashSet<>();
+    private SessionHelper sessionHelper;
 
 
-    public WorldActor(@Autowired  ActorSystem actorSystem){
+    public WorldActor(@Autowired  ActorSystem actorSystem,@Autowired SessionHelper sessionHelper){
         this.actorSystem=actorSystem;
+        this.sessionHelper=sessionHelper;
     }
+
 
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(WorldActorMessage.RequestLogin.class, this::login)
-                .match(PlayerEntryRepositoryProtocol.FindByIdResult.class, this::load)
+                .match(ReqLogin.class,this::processReqLogin)
+                .match(AuthenticationServiceProtocol.AuthenticateSuccess.class, this::processAuthenticateSuccess)
+                .match(PlayerEntryRepositoryProtocol.AccountPlayerList.class,this::processAccountPlayerList)
+                .match(PlayerEntryRepositoryProtocol.FindByIdResult.class, this::processFindByIdResult)
+                .match(ReqEnterWorld.class,this::processEnterWorld)
                 .build();
     }
 
-    private void login(WorldActorMessage.RequestLogin msg) {
-
-        System.out.println("player:"+msg.getPlayerId()+" request login.");
-
-        if (onlinePlayers.containsKey(msg.getPlayerId())) {
-            System.out.println("player:"+msg.getPlayerId()+" already login.");
-            //getSender().tell(new WorldActorMessage.PlayerLoginFail(1), getSelf());
-            return;
-        }
-
-        if (waiterSet.contains(msg.getPlayerId())) {
-            System.out.println("player:"+msg.getPlayerId()+" is logging");
-            //getSender().tell(new WorldActorMessage.PlayerLoginFail(2), getSelf());
-            return;
-        }
-
-        waiterSet.add(msg.getPlayerId());
-
-
-        //actorSystem.child("/user/PlayerEntryRepository");
-
-        ActorSelection selection=  actorSystem.actorSelection("akka://actorSystem/user/PlayerEntryRepository");
-        selection.tell(new PlayerEntryRepositoryProtocol.FindById(getSelf(),msg.getPlayerId()),getSelf());
+    private  void processReqLogin(ReqLogin msg) {
+        ActorSelection authenticationServiceSelection=actorSystem.actorSelection(ActorPathConst.AuthenticationServicePath);
+        authenticationServiceSelection.tell(new AuthenticationServiceProtocol.AuthenticateRequest(msg.getChannelId(),msg.getAccountId(),msg.getPlatform(),msg.getOpenId(),msg.getTime(),msg.getSign()),getSelf());
     }
 
+    private  void processEnterWorld(ReqEnterWorld msg) {
+        PlayerEntryRepositoryProtocol.FindById findById=  new PlayerEntryRepositoryProtocol.FindById(msg.getPlayerId());
+        findById.setChannelId(msg.getChannelId());
+        ActorSelection  playerEntryRepositorySelection=actorSystem.actorSelection(ActorPathConst.PlayerEntryRepositoryPath);
+        playerEntryRepositorySelection.tell(findById,getSelf());
+    }
 
-    private void load(PlayerEntryRepositoryProtocol.FindByIdResult result) {
+    private  void processAuthenticateSuccess(AuthenticationServiceProtocol.AuthenticateSuccess msg)
+    {
+        ActorSelection  playerEntryRepositorySelection=actorSystem.actorSelection(ActorPathConst.PlayerEntryRepositoryPath);
+        playerEntryRepositorySelection.tell(new PlayerEntryRepositoryProtocol.FindAccountPlayerList(msg.getChannelId(),msg.getAccountId()),getSelf());
+    }
 
+    private  void processAccountPlayerList(PlayerEntryRepositoryProtocol.AccountPlayerList msg) {
+        List<PlayerEntrySimpleInfo> simpleInfoList= msg.getSimpleInfoList();
+        RespPlayerList resp=new RespPlayerList();
+        resp.setPlayers(simpleInfoList);
+        sessionHelper.writeMessageTo(msg.getChannelId(),resp);
+    }
 
-        ActorRef playerRef=result.getResultRef();
-        if(playerRef==null){
-            System.out.println("login fail :" + result.getId());
-            waiterSet.remove(result.getId());
+    private void processFindByIdResult(PlayerEntryRepositoryProtocol.FindByIdResult result) {
+
+        if(result.getResultRef()==null){
+
+            //TODO 客户端发送登录进入游戏失败的消息
+            //sessionHelper.writeMessageTo(result.getChannelId(),null);
             return ;
-        }else{
-            System.out.println("login success :" + result.getId());
-            onlinePlayers.put(result.getId(), playerRef);
-            waiterSet.remove(result.getId());
-            playerRef.tell(new PlayerActorProtocol.PlayerLoaded(),getSelf());
         }
+        result.getResultRef().tell(new PlayerActorProtocol.Init(),getSelf());
     }
 
 }

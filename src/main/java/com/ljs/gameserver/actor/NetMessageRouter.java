@@ -3,38 +3,45 @@ package com.ljs.gameserver.actor;
 import akka.actor.AbstractActor;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
-import com.ljs.gameserver.message.network.NetMessage;
-import com.ljs.gameserver.message.network.RequestNetMessage;
+import com.ljs.gameserver.Session;
+import com.ljs.gameserver.SessionManger;
+import com.ljs.gameserver.message.network.Op;
+import com.ljs.gameserver.message.network.requests.ReqNetMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 @Component("netMessageRouter")
 @Scope("prototype")
 public class NetMessageRouter extends AbstractActor{
 
-    private  Logger logger= LogManager.getLogger(getClass());
+    private Logger logger= LogManager.getLogger(getClass());
     private ActorSystem system=getContext().getSystem();
-    @Override
-    public Receive createReceive() {
-        return receiveBuilder().match(NetMessage.class ,this::routing).build();
+    private SessionManger sessionManger;
+
+    public NetMessageRouter(SessionManger sessionManger) {
+        this.sessionManger = sessionManger;
     }
 
-    private void routing(NetMessage msg){
-        if(msg instanceof RequestNetMessage){
-            RequestNetMessage requestNetMessage=(RequestNetMessage)msg;
-            if(!StringUtils.isEmpty(requestNetMessage.getPlayerId())){
-                ActorSelection actorSelection= system.actorSelection("akka://actorSystem/user/PlayerEntryRepository/player@"+requestNetMessage.getPlayerId());
-                actorSelection.tell(requestNetMessage,getSelf());
-            }else{
-                ActorSelection actorSelection= system.actorSelection("akka://actorSystem/user/WorldActor");
-                actorSelection.tell(requestNetMessage,getSelf());
-            }
+    @Override
+    public Receive createReceive() {
+        return receiveBuilder().match(ReqNetMessage.class ,this::routing).build();
+    }
 
+    private void routing(ReqNetMessage msg){
+        if(msg.getOp()== Op.OP_LOGIN_REQ||msg.getOp()==Op.OP_ENTRY_GAME){
+            ActorSelection worldActorSelection=system.actorSelection(ActorPathConst.WorldActorPath);
+            worldActorSelection.tell(msg,getSelf());
         }else{
-            logger.warn("不能分发消息：op={}",msg.getOp());
+            Session session=sessionManger.getSession(msg.getChannelId());
+            if(session.isAuth()) {
+                msg.setPlayerId(session.getPlayerId());
+                ActorSelection worldActorSelection = system.actorSelection(ActorPathConst.getPlayerActorName(msg.getPlayerId()));
+                worldActorSelection.tell(msg, getSelf());
+            }else{
+                logger.error("用户还未登录，请登录后再试，address:{}",session.getChannel().remoteAddress());
+            }
         }
     }
 }

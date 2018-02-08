@@ -1,4 +1,4 @@
-package com.ljs.gameserver;
+package com.ljs.gameserver.springakka;
 
 import akka.actor.Actor;
 import akka.actor.IndirectActorProducer;
