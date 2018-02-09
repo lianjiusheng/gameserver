@@ -1,6 +1,6 @@
 package com.ljs.mg.core.packet;
 
-public class RespNetMessage extends NetMessage {
+public abstract class RespNetMessage extends NetMessage {
 
     private int rs ;
     private String errorMsg;

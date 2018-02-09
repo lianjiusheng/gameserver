@@ -9,14 +9,11 @@ public class TelentInfo {
 
     //专精倾向
     public int trendId;
-
     //专精等级
-
     public int trendLv;
 
     //指挥官专精 talentID -> level
     public Map<Integer, Integer> talent ;
-
     //专精点
     public int talentPoint = 1;
 

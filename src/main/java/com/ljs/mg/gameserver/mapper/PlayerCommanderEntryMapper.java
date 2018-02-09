@@ -1,11 +1,10 @@
 package com.ljs.mg.gameserver.mapper;
 
-import com.ljs.gameserver.entry.PlayerCommanderEntry;
-import java.util.List;
-
 import com.ljs.mg.gameserver.entry.PlayerCommanderEntry;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface PlayerCommanderEntryMapper {

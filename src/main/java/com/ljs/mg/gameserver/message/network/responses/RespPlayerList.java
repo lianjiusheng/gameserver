@@ -1,8 +1,7 @@
 package com.ljs.mg.gameserver.message.network.responses;
 
 import com.ljs.mg.core.packet.RespNetMessage;
-import com.ljs.gameserver.entry.PlayerEntrySimpleInfo;
-import com.ljs.gameserver.message.network.Op;
+import com.ljs.mg.gameserver.entry.PlayerEntrySimpleInfo;
 import com.ljs.mg.gameserver.message.network.Op;
 
 import java.util.List;

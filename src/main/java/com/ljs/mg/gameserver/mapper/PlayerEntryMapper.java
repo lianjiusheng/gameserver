@@ -1,8 +1,8 @@
 package com.ljs.mg.gameserver.mapper;
 
-import com.ljs.gameserver.entry.PlayerEntry;
-import com.ljs.gameserver.entry.PlayerEntrySimpleInfo;
+
 import com.ljs.mg.gameserver.entry.PlayerEntry;
+import com.ljs.mg.gameserver.entry.PlayerEntrySimpleInfo;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

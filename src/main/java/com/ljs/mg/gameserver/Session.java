@@ -12,6 +12,9 @@ public class Session {
     private volatile Channel channel;
     private ChannelId channelId;
 
+    private boolean authed;
+
+    private String accountId;
     private String playerId;
 
     public Session(Channel channel) {
@@ -34,7 +37,19 @@ public class Session {
     }
 
     public boolean isAuth(){
-        return !Strings.isNullOrEmpty(playerId);
+        return authed;
+    }
+
+    public void setAuthed(boolean authed) {
+        this.authed = authed;
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
     }
 
     public void writeMessage(Object msg){

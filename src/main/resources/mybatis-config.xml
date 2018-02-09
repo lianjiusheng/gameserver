@@ -4,9 +4,9 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
     <typeAliases>
-        <package name="com.ljs.gameserver.entry"/>
+        <package name="com.ljs.mg.gameserver.entry"/>
     </typeAliases>
     <mappers>
-        <mapper resource="com/ljs/gameserver/mapper/PlayerEntryMapper.xml"/>
+        <mapper resource="com/ljs/mg/gameserver/mapper/PlayerEntryMapper.xml"/>
     </mappers>
 </configuration>
