@@ -5,7 +5,6 @@ import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import com.ljs.gameserver.entry.PlayerEntrySimpleInfo;
 import com.ljs.gameserver.message.AuthenticationServiceProtocol;
-import com.ljs.gameserver.message.PlayerActorProtocol;
 import com.ljs.gameserver.message.network.requests.ReqEnterWorld;
 import com.ljs.gameserver.message.network.requests.ReqLogin;
 import com.ljs.gameserver.message.network.responses.RespPlayerList;
@@ -76,7 +75,7 @@ public class WorldActor extends AbstractActor {
             //sessionHelper.writeMessageTo(result.getChannelId(),null);
             return ;
         }
-        result.getResultRef().tell(new PlayerActorProtocol.Init(),getSelf());
+
     }
 
 }

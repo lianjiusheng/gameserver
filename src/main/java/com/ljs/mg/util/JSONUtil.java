@@ -1,4 +1,4 @@
-package com.ljs.gameserver.util;
+package com.ljs.mg.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,5 +27,16 @@ public class JSONUtil {
         }
         final ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(json,objectClass);
+    }
+
+
+    public static  <T> T  readObject(Class<T> objectClass,byte[] data)  throws IOException {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(data,objectClass);
+    }
+
+    public static  byte[]  getBytes(Object object)  throws JsonProcessingException {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsBytes(object);
     }
 }

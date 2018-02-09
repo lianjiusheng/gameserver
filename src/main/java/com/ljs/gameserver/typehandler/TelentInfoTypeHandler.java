@@ -1,9 +1,8 @@
 package com.ljs.gameserver.typehandler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ljs.gameserver.entry.SkillInfo;
 import com.ljs.gameserver.entry.TelentInfo;
-import com.ljs.gameserver.util.JSONUtil;
+import com.ljs.mg.util.JSONUtil;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.MappedTypes;

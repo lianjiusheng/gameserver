@@ -1,11 +1,10 @@
-package com.ljs.gameserver.message.network;
+package com.ljs.mg.core.packet;
 
 public abstract class NetMessage {
 
     private final int op;//业务编号
     private long tid;//事务ID
     private String version="1.0";// 版本
-
 
     public NetMessage(int op) {
         this.op=op;

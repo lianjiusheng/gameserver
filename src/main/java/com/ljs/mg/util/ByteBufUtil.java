@@ -1,4 +1,4 @@
-package com.ljs.gameserver.util;
+package com.ljs.mg.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.util.CharsetUtil;

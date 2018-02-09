@@ -6,7 +6,7 @@ import akka.actor.ActorSystem;
 import com.ljs.gameserver.Session;
 import com.ljs.gameserver.SessionManger;
 import com.ljs.gameserver.message.network.Op;
-import com.ljs.gameserver.message.network.requests.ReqNetMessage;
+import com.ljs.mg.core.packet.ReqNetMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Scope;

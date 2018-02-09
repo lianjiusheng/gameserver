@@ -6,7 +6,7 @@ import akka.actor.Props;
 import akka.dispatch.Futures;
 import akka.pattern.Patterns;
 import com.ljs.gameserver.springakka.SpringExtension;
-import com.ljs.gameserver.actor.PlayerActor;
+import com.ljs.mg.core.actor.PlayerActor;
 import com.ljs.gameserver.entry.PlayerEntry;
 import com.ljs.gameserver.entry.PlayerEntrySimpleInfo;
 import com.ljs.gameserver.mapper.PlayerEntryMapper;

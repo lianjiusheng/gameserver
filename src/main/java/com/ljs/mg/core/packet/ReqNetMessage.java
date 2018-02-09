@@ -1,6 +1,4 @@
-package com.ljs.gameserver.message.network.requests;
-
-import com.ljs.gameserver.message.network.NetMessage;
+package com.ljs.mg.core.packet;
 
 public class ReqNetMessage extends NetMessage {
 

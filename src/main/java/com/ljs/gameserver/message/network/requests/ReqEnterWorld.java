@@ -1,5 +1,7 @@
 package com.ljs.gameserver.message.network.requests;
 
+import com.ljs.mg.core.packet.ReqNetMessage;
+
 public class ReqEnterWorld extends ReqNetMessage {
 
     private String playerId;

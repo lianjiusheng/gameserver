@@ -1,5 +1,6 @@
 package com.ljs.gameserver.message.network.requests;
 
+import com.ljs.mg.core.packet.ReqNetMessage;
 import com.ljs.gameserver.message.network.Op;
 
 public class ReqLogin extends ReqNetMessage {
