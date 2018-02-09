@@ -2,9 +2,6 @@ package com.ljs.mg.gameserver;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-
-import com.ljs.mg.core.INetMessageFacotry;
-import com.ljs.mg.core.INetMessageHandlerFactory;
 import com.ljs.mg.core.Server;
 import com.ljs.mg.gameserver.actor.ActorPathConst;
 import com.ljs.mg.gameserver.config.DBConfig;

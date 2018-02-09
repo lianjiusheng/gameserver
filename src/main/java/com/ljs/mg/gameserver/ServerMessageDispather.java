@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class GameMessageDispather implements IGameMessageDispather {
+public class ServerMessageDispather implements IGameMessageDispather {
 
     protected Logger log= LogManager.getLogger(getClass());
     @Autowired
