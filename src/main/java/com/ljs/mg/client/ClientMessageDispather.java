@@ -31,7 +31,7 @@ public class ClientMessageDispather implements IGameMessageDispather {
 
             INetMessageHandler messageHandler=netMessageHandlerFactory.getNetMessageHandler(op);
             if(messageHandler==null){
-                log.warn("找不到op={}的处理类",op);
+                //log.warn("找不到op={}的处理类",op);
                 return ;
             }
             try {

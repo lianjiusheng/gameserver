@@ -1,6 +1,9 @@
 package com.ljs.mg.gameserver.actor;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
@@ -18,6 +21,7 @@ import com.ljs.mg.gameserver.message.network.responses.RespLogin;
 import com.ljs.mg.gameserver.message.network.responses.RespPlayerList;
 import com.ljs.mg.gameserver.repository.PlayerEntryRepository;
 import com.ljs.mg.gameserver.services.PlayerEntryService;
+import com.ljs.mg.gameserver.springakka.SpringExtension;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,16 +40,19 @@ public class AuthenticationService extends AbstractActor {
 
     @Autowired
     private PlayerEntryRepository playerEntryRepository;
-    @Autowired
-    private PlayerEntryService playerEntryService;
+
     @Autowired
     private SessionManger sessionManger;
 
+    int count=0;
+    long startTime=0;
 
     @Override
     public void preStart() throws Exception {
         log.info("AuthenticationService Actor start..");
+
     }
+
 
     @Override
     public Receive createReceive() {
@@ -59,29 +66,15 @@ public class AuthenticationService extends AbstractActor {
 
     private void processCreatePlayer(ReqCreatePlayer msg) {
 
-        Session session = sessionManger.getSession(msg.getChannelId());
-        String name = msg.getPlayerName();
+        getContext().actorSelection(ActorPathConst.PlayerCreatorActor).forward(msg,getContext());
 
-        RespCreatePlayer respCreatePlayer = new RespCreatePlayer();
-
-        if (Strings.isNullOrEmpty(name)) {
-            respCreatePlayer.setRs(4);
-            respCreatePlayer.setErrorMsg("角色名不能为空");
-        } else {
-            PlayerEntry playerEntry = new PlayerEntry();
-            playerEntry.setAccountId(session.getAccountId());
-            playerEntry.setId(UUID.randomUUID().toString());
-            playerEntry.setName(name);
-            playerEntry.setCreateTime(new Date());
-            playerEntry.setLastLoginTime(new Date());
-
-            playerEntryService.savePlayerEntry(playerEntry);
-            respCreatePlayer.setPlayerEntry(playerEntry);
-        }
-        session.writeMessage(respCreatePlayer);
     }
 
     private void processReqLogin(ReqLogin msg) {
+
+        if(count==0){
+            startTime=System.currentTimeMillis();
+        }
 
         String sign = generateSign(msg);
 
@@ -101,26 +94,20 @@ public class AuthenticationService extends AbstractActor {
             respLogin.setErrorMsg("认证失败");
             session.writeMessage(respLogin);
         }
+
+        count++;
+
+        if(count%1000==0){
+            log.info("count:{}",count);
+        }
+
+        if(count==100000){
+            log.info("select {} cost time {}",count,System.currentTimeMillis()-startTime);
+        }
     }
 
     private void processEnterWorld(ReqEnterGame msg) {
-
-        PlayerEntry entry = playerEntryService.loadPlayerEntry(msg.getPlayerId());
-        Session session = sessionManger.getSession(msg.getChannelId());
-        RespEnterGame respEnterGame = new RespEnterGame();
-        if (entry == null) {
-            respEnterGame.setRs(2);
-            respEnterGame.setErrorMsg("角色不存在");
-        } else {
-            if (!entry.getAccountId().equals(session.getAccountId())) {
-                respEnterGame.setRs(3);
-                respEnterGame.setErrorMsg("用户没有该角色");
-            } else {
-                respEnterGame.setPlayerEntry(entry);
-                session.setPlayerId(entry.getId());
-            }
-        }
-        session.writeMessage(respEnterGame);
+        getContext().actorSelection(ActorPathConst.PlayerLoaderActor).forward(msg,getContext());
     }
 
     private String generateSign(ReqLogin msg) {

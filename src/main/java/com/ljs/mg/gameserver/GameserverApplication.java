@@ -73,6 +73,9 @@ public class GameserverApplication implements ApplicationListener {
             //初始化Actor
             ActorSystem actorSystem = applicationContext.getBean(ActorSystem.class);
             ActorRef actorRef = actorSystem.actorOf(SpringExtension.getInstance().get(actorSystem).props("AuthenticationService"), "AuthenticationService");
+
+            actorSystem.actorOf(SpringExtension.getInstance().get(actorSystem).props("PlayerCreatorActor"), "PlayerCreatorActor");
+            actorSystem.actorOf(SpringExtension.getInstance().get(actorSystem).props("PlayerLoaderActor"), "PlayerLoaderActor");
         }
     }
 

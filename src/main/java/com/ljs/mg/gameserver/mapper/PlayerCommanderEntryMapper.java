@@ -3,6 +3,7 @@ package com.ljs.mg.gameserver.mapper;
 import com.ljs.mg.gameserver.entry.PlayerCommanderEntry;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -47,4 +48,9 @@ public interface PlayerCommanderEntryMapper {
      * @mbg.generated
      */
     int updateByPrimaryKey(PlayerCommanderEntry record);
+
+
+    @Select("select * from player_commanders where owner_id=#{ownerId}")
+    List<PlayerCommanderEntry> selectPlayerCommanderEntrys(@Param("ownerId") String ownerId);
+
 }

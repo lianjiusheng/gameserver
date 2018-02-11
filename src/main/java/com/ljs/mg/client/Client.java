@@ -70,7 +70,7 @@ public class Client {
             client.getConnector().writeMessage(reqLogin);
 
             try {
-                Thread.sleep(1000L);
+                Thread.sleep(1L);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
