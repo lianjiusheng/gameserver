@@ -83,7 +83,7 @@ public class Connector {
 
                         ChannelPipeline pipeline = ch.pipeline();
                         // decoder
-                        pipeline.addLast("length-decoder", new LengthFieldBasedFrameDecoder(1024000, 0, 4));// 1M
+                        pipeline.addLast("length-decoder", new LengthFieldBasedFrameDecoder(1024000, 0, 4,0,4));// 1M
                         pipeline.addLast("length-encoder", new LengthFieldPrepender(4));
                         pipeline.addLast(new GameMessagePacketCodec(messageFacotry));//数据包封包解包
                         pipeline.addLast(new GameMessageDispatherHandler(gameMessageDispather));//消息分发
@@ -117,7 +117,7 @@ public class Connector {
                     @Override
                     public void run() {
 
-                        Connector.this.connect();
+                        Connector.this.connectImpl();
                     }
                 },15L, TimeUnit.SECONDS);
             }
@@ -139,4 +139,8 @@ public class Connector {
         //TODO 当连接建立是发送第一条消息，例如注册消息
     }
 
+
+    public Channel getChannel() {
+        return channel;
+    }
 }

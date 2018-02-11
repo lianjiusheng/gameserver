@@ -1,5 +1,6 @@
 package com.ljs.mg.gameserver;
 
+import com.google.common.base.Strings;
 import com.ljs.mg.core.ISessionManager;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
@@ -30,7 +31,7 @@ public class SessionManger implements ISessionManager {
         channel.attr(sessionAttributeKey).set(null);
         Session session = sessionMap.remove(channel.id().asLongText());
         session.sessionClosed();
-        if(session.isAuth()){
+        if(!Strings.isNullOrEmpty(session.getPlayerId())){
             playerSessionMap.remove(session.getPlayerId());
         }
 

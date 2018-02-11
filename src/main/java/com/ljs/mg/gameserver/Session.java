@@ -72,7 +72,7 @@ public class Session {
      * 会话关闭
      * */
     public void sessionClosed(){
-        log.info("session opend ,channelId={}.",channelId.asLongText());
+        log.info("session closed ,channelId={}.",channelId.asLongText());
         channel=null;
     }
 

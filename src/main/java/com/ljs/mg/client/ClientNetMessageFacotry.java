@@ -1,4 +1,4 @@
-package com.ljs.mg.gameserver;
+package com.ljs.mg.client;
 
 import com.ljs.mg.core.INetMessageFacotry;
 import com.ljs.mg.core.packet.NetMessage;
@@ -18,8 +18,7 @@ import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
-public class NetMessageFacotry implements INetMessageFacotry {
+public class ClientNetMessageFacotry implements INetMessageFacotry {
 
     protected Logger log= LogManager.getLogger(getClass());
 

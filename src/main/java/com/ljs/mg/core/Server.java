@@ -51,7 +51,7 @@ public class Server {
                         ChannelPipeline pipeline = ch.pipeline();
 
                         // decoder
-                        pipeline.addLast("length-decoder", new LengthFieldBasedFrameDecoder(1024000, 0, 4));// 1M
+                        pipeline.addLast("length-decoder", new LengthFieldBasedFrameDecoder(1024000, 0, 4,0,4));// 1M
                         pipeline.addLast("length-encoder", new LengthFieldPrepender(4));
 
                         pipeline.addLast(new GameMessagePacketCodec(messageFacotry));//数据包封包解包

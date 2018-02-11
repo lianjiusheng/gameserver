@@ -34,7 +34,6 @@ public class GameMessagePacketCodec extends MessageToMessageCodec<ByteBuf,NetMes
 
         if(msgClass==null){
             log.warn("找不到op={}对应的消息类型。",op);
-            ctx.channel().close();
             return ;
         }
         try {
